@@ -30,6 +30,7 @@ gem 'draper'
 gem 'haml-rails'
 gem 'bootstrap-generators'
 gem 'bootstrap-sass'
+gem 'redcarpet'
 
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'

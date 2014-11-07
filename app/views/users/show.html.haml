@@ -1,0 +1,25 @@
+.page-header
+  = link_to users_path, :class => 'btn btn-default' do
+    %span.glyphicon.glyphicon-list-alt
+    Back
+  = link_to edit_user_path(@user), :class => 'btn btn-primary' do
+    %span.glyphicon.glyphicon-pencil
+    Edit
+  %h1 Show user
+
+%dl.dl-horizontal
+  %dd= image_tag("avatars/#{@user.avatar_image_name}", class: "avatar")
+  %dt Username:
+  %dd= @user.username
+  %dt Full name:
+  %dd= @user.full_name
+  %dt Twitter name:
+  %dd= @user.twitter_name
+  %dt Github name:
+  %dd= @user.github_name
+  %dt Url:
+  %dd= @user.url
+  %dt Avatar image name:
+  %dd= @user.avatar_image_name
+  %dt Bio:
+  %dd= sanitize Redcarpet::Markdown.new(Redcarpet::Render::HTML.new(prettify:true, hard_wrap:true),fence_code_blocks:true).render(@user.bio)
