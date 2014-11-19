@@ -8,7 +8,7 @@
   %h1 Show user
 
 %dl.dl-horizontal
-  %dd= image_tag("avatars/#{@user.avatar_image_name}", class: "avatar")
+  %dd= @user.avatar
   %dt Username:
   %dd= @user.username
   %dt Full name:
@@ -18,8 +18,8 @@
   %dt Github name:
   %dd= @user.github_name
   %dt Url:
-  %dd= @user.url
+  %dd= @user.website
   %dt Avatar image name:
   %dd= @user.avatar_image_name
   %dt Bio:
-  %dd= sanitize Redcarpet::Markdown.new(Redcarpet::Render::HTML.new(prettify:true, hard_wrap:true),fence_code_blocks:true).render(@user.bio)
+  %dd= @user.bio

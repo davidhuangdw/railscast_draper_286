@@ -10,4 +10,25 @@ class UserDecorator < Draper::Decorator
   #     end
   #   end
 
+  def avatar
+    h.image_tag("avatars/#{object.avatar_image_name}", class: "avatar")
+  end
+
+  def website
+    if url.present?
+      h.link_to url, url
+    else
+      h.content_tag :span, "No content"
+    end
+  end
+
+  def bio
+    h.sanitize markdown.render(object.bio) if object.bio.present?
+  end
+
+  def markdown
+    @@markdown ||= Redcarpet::Markdown.
+                    new(Redcarpet::Render::HTML.
+                    new(prettify:true, hard_wrap:true),fence_code_blocks:true)
+  end
 end
