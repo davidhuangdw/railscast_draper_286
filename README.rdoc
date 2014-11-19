@@ -1,28 +1,93 @@
-== README
+### view decorator: draper
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+        # more healthy structure:
+        view-model-related logic: decorators(draper, presenter)
+        view component logic: view helper
+        less controller logic
+        healthy fat model: put into concerns, or service objects(polymorphicable)
 
-Things you may want to cover:
+        # refactor: for nil attributes
+        def handle_none(value)
+          if value.present?
+            yield
+          else
+            h.content_tag :span, "None given", class:'none'
+          end
+        end
+        def bio
+          handle_none do
+            h.sanitize markdown.render(object.bio)
+          end
+        end
 
-* Ruby version
+        # example:
+          def markdown
+            @@markdown ||= Redcarpet::Markdown.
+                new(Redcarpet::Render::HTML.
+                new(prettify:true, hard_wrap:true),fence_code_blocks:true)
+          end
+          def bio
+            h.sanitize markdown.render(object.bio) if object.bio.present?       # remember to check presence!!
+          end
+          def website
+            if object.url.present?
+              h.link_to object.url, object.url
+            else
+              h.content_tag :span, "No Content"
+            end
+          end
 
-* System dependencies
 
-* Configuration
+        # exposure 'read-only' helper to view: decorates_assigned
+        class ArticlesController < ApplicationController
+          decorates_assigned :article
 
-* Database creation
+          def show
+            @article = Article.find(params[:id])
+          end
+        end
+        # =>
+        def article
+          @decorated_article ||= @article.decorate
+        end
+        helper_method :article
 
-* Database initialization
+        # enable pagination
+        class PaginatingDecorator < Draper::CollectionDecorator
+          delegate :current_page, :total_pages, :limit_value
+        end
+        class ArticlesDecorator < PaginatingDecorator
+          ...
+        end
 
-* How to run the test suite
+        # custom collections decorator
+        # app/decorators/articles_decorator.rb
+        class ArticlesDecorator < Draper::CollectionDecorator
+          def page_number
+            42
+          end
+        end
 
-* Services (job queues, cache servers, search engines, etc.)
+        # decorate associated objects
+        class ArticleDecorator < Draper::Decorator
+          decorates_association :author         # will use AuthorDecorator for '.author'
+        end
 
-* Deployment instructions
+        # refer/use decorator
+        # single object
+        @article = Article.first.decorate
+        @widget = ProductDecorator.new(Widget.first)
+        @widget = ProductDecorator.decorate(Widget.first)
+        # collection
+        @articles = ArticleDecorator.decorate_collection(Article.all)       # cannot append '.decorate' to array
+        @articles = Article.all.decorate                    # could append '.decorate' to query result
+        @articles = Article.popular.decorate
 
-* ...
+        # define decorator
+        rails g decorator <model_name>
+        # decorators/...rb
+        h.content_tag(...)          # 'h.' to refer helper method
+        object.created_at           # 'object.' to refer model object
 
+        gem 'draper'
 
-Please feel free to use a different markup language if you do not plan to run
-<tt>rake doc:app</tt>.
